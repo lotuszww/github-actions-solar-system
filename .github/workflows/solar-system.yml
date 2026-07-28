@@ -83,6 +83,8 @@
         - docker
       environment:
         name: development
+      outputs:
+        APP_INGRESS_URL: ${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
 
       steps:
         - name: install the Kubernetes cluster
@@ -102,3 +104,15 @@
             echo "kubectl returned $?"
             kubectl -n default get pod
             sleep 10
+
+        - name: Set App Ingress Host URL
+          id: set-ingress-host-address
+          run: |
+            echo "APP_INGRESS_HOST=$(kubectl get ingress -o jsonpath={.items[0].spec.tls[0].hosts[0]")" >> $GITHUB_OUTPUT
+    
+    integration-testing:
+      needs:
+        - dev-deploy
+      uses: ./.github/workflows/reusable_workflow.yml
+      with:
+        ingress-url: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
