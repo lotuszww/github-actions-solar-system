@@ -110,9 +110,10 @@
           run: |
             echo "APP_INGRESS_HOST=$(kubectl get ingress -o jsonpath={.items[0].spec.tls[0].hosts[0]")" >> $GITHUB_OUTPUT
     
-    integration-testing:
+    integration-test:
       needs:
         - dev-deploy
       uses: ./.github/workflows/reusable-workflow.yml
       with:
         ingress-url: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
+        
